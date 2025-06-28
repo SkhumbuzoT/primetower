@@ -27,6 +27,16 @@ app.add_middleware(
 
 security = HTTPBasic()
 
+# Root route for health check or test
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the FastAPI backend"}
+
+# API route your frontend can consume
+@app.get("/api/data")
+def get_data():
+    return {"message": "Hello from FastAPI"}
+
 # Step 1: Reconstruct credentials.json from base64 env var
 creds_b64 = os.getenv("GOOGLE_CREDS_BASE64")
 if creds_b64:
