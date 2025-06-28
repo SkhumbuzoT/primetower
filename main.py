@@ -9,10 +9,9 @@ from functools import lru_cache
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
+import base64
 
 load_dotenv()
-
-app = FastAPI(title="PrimeTower API")
 
 # Enable CORS (for frontend connection)
 app.add_middleware(
@@ -25,19 +24,34 @@ app.add_middleware(
 
 security = HTTPBasic()
 
+# Step 1: Reconstruct credentials.json from base64 env var
+creds_b64 = os.getenv("GOOGLE_CREDS_BASE64")
+if creds_b64:
+    try:
+        with open("credentials.json", "wb") as f:
+            f.write(base64.b64decode(creds_b64))
+    except Exception as e:
+        print(f"⚠️ Failed to decode and write credentials.json: {e}")
+else:
+    print("⚠️ GOOGLE_CREDS_BASE64 env var not set — credentials.json will be missing")
+
 # Config (same as your Streamlit app)
 class AppConfig:
     CREDENTIALS_FILE = "credentials.json"
-    SHEET_KEY = os.getenv("SHEET_KEY")  # From .env
+    SHEET_KEY = os.getenv("SHEET_KEY")  # From .env or Render Environment tab
 
 config = AppConfig()
 
 # --- Data Loading ---
 @lru_cache
 def get_gsheet_client():
+    import gspread
+    from oauth2client.service_account import ServiceAccountCredentials
+
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name(config.CREDENTIALS_FILE, scope)
     return gspread.authorize(creds)
+
 
 @lru_cache
 def load_data():
