@@ -19,7 +19,10 @@ app = FastAPI(title="PrimeTower API")
 # Enable CORS (for frontend connection)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins (update in production)
+    allow_origins=[
+        "https://your-vercel-app.vercel.app",  # Your frontend URL
+        "http://localhost:3000",               # For local dev
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
