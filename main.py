@@ -13,6 +13,9 @@ import base64
 
 load_dotenv()
 
+# ✅ Define the FastAPI app first
+app = FastAPI(title="PrimeTower API")
+
 # Enable CORS (for frontend connection)
 app.add_middleware(
     CORSMiddleware,
